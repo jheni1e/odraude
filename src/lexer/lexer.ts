@@ -36,37 +36,36 @@ export class Lexer {
           break;
         case "<":
           this.addToken(TokenType.LESS);
+          break;
         case ";":
-          this.addToken(TokenType.SEMICOLON);
+            this.addToken(TokenType.SEMICOLON);
+            this.line++;
           break;
         case '"':
           let string = "";
-          let c = this.advance();
 
-          while (c != '"') {
-            string = string.concat(c);
-            c = this.advance();
+          while (this.peek() !== '"' && this.current < this.source.length) {
+            string += this.advance();
           }
+
+          this.advance();
 
           this.addToken(TokenType.STRING, string);
           break;
         default:
-            if (this.isDigit(char)) {
-                let num = char;
-                let peek = this.advance();
+          if (this.isDigit(char)) {
+            let num = char;
 
-                while (this.isDigit(peek)) {
-                    num = num.concat(peek)
-                    peek = this.advance();
-                }
-
-                const number = parseInt(num);
-
-                this.addToken(TokenType.NUMBER, number);
-                break;
-             } else {
-                break;
+            while (this.isDigit(this.peek())) {
+              num += this.advance();
             }
+
+            const number = parseInt(num);
+            this.addToken(TokenType.NUMBER, number);
+            break;
+          } else {
+            break;
+          }
       }
     }
 
@@ -76,8 +75,13 @@ export class Lexer {
   }
 
   private isDigit(char: string): boolean {
-        return char >= '0' && char <= '9';
-    }
+    return char >= '0' && char <= '9';
+  }
+
+  private peek(): string {
+    if (this.current >= this.source.length) return '\0';
+    return this.source[this.current];
+  }
 
   private addToken(type: TokenType, literal: unknown = null) {
     const lexeme = this.source.substring(this.start, this.current);
