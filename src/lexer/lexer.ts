@@ -24,13 +24,23 @@ export class Lexer {
           this.line++;
           break;
         case "=":
-          this.addToken(TokenType.EQUAL);
+          if (this.match("=")) {
+            this.addToken(TokenType.EQUAL_EQUAL);
+          } else {
+            this.addToken(TokenType.EQUAL);
+          }
           break;
         case "+":
           this.addToken(TokenType.PLUS);
           break;
         case "-":
-          this.addToken(TokenType.MINUS);
+          if (this.match("-")) {
+            while (this.peek() !== "\n" && this.current < this.source.length) {
+              this.advance();
+            }
+          } else {
+            this.addToken(TokenType.MINUS);
+          }
           break;
         case ">":
           this.addToken(TokenType.GREATER);
@@ -41,11 +51,19 @@ export class Lexer {
         case ";":
           this.addToken(TokenType.SEMICOLON);
           break;
+        case " ":
+        case "\r":
+        case "\t":
+          break;
         case '"':
           let string = "";
 
           while (this.peek() !== '"' && this.current < this.source.length) {
             string += this.advance();
+          }
+
+          if (this.current >= this.source.length) {
+            throw new Error(`Unterminated string at line ${this.line}`);
           }
 
           this.advance();
@@ -66,7 +84,7 @@ export class Lexer {
               num += this.advance();
             }
 
-            const number = parseInt(num);
+            const number = parseInt(num, 10);
             this.addToken(TokenType.NUMBER, number);
             break;
           } else if (this.isAlpha(char)) {
@@ -104,16 +122,28 @@ export class Lexer {
   }
 
   private isAlpha(char: string): boolean {
-    return /^[a-zA-Z]$/.test(char);
+    return (
+      (char >= "a" && char <= "z") ||
+      (char >= "A" && char <= "Z") ||
+      char === "_"
+    );
   }
 
   private isAlphanumeric(char: string): boolean {
-    return /^[a-zA-Z0-9]$/.test(char);
+    return this.isAlpha(char) || this.isDigit(char);
   }
 
   private peek(): string {
     if (this.current >= this.source.length) return "\0";
     return this.source[this.current];
+  }
+
+  private match(expected: string): boolean {
+    if (this.current >= this.source.length) return false;
+    if (this.source[this.current] !== expected) return false;
+
+    this.current++;
+    return true;
   }
 
   private addToken(type: TokenType, literal: unknown = null) {
