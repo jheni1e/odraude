@@ -1,0 +1,20 @@
+enum TokenType {
+    LET,
+    IDENTIFIER,
+    NUMBER,
+    STRING,
+    PLUS,
+    MINUS,
+    STAR,
+    SLASH,
+    EQUAL,
+    EQUAL_EQUAL,
+    GREATER,
+    LESS,
+    LEFT_PAREN,
+    RIGHT_PAREN,
+    LEFT_BRACE,
+    RIGHT_BRACE,
+    SEMICOLON,
+    EOF
+}
