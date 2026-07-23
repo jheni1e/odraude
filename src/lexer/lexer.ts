@@ -50,6 +50,23 @@ export class Lexer {
 
           this.addToken(TokenType.STRING, string);
           break;
+        default:
+            if (this.isDigit(char)) {
+                let num = char;
+                let peek = this.advance();
+
+                while (this.isDigit(peek)) {
+                    num = num.concat(peek)
+                    peek = this.advance();
+                }
+
+                const number = parseInt(num);
+
+                this.addToken(TokenType.NUMBER, number);
+                break;
+             } else {
+                break;
+            }
       }
     }
 
@@ -57,6 +74,10 @@ export class Lexer {
 
     return this.tokens;
   }
+
+  private isDigit(char: string): boolean {
+        return char >= '0' && char <= '9';
+    }
 
   private addToken(type: TokenType, literal: unknown = null) {
     const lexeme = this.source.substring(this.start, this.current);
