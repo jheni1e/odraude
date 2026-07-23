@@ -1,3 +1,5 @@
+import { TokenType } from "./token-type";
+
 export class Token {
     constructor(
         public readonly type: TokenType,
