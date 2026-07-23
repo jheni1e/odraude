@@ -21,6 +21,7 @@ export class Lexer {
 
       switch (char) {
         case "\n":
+          this.line++;
           break;
         case "=":
           this.addToken(TokenType.EQUAL);
@@ -39,7 +40,6 @@ export class Lexer {
           break;
         case ";":
           this.addToken(TokenType.SEMICOLON);
-          this.line++;
           break;
         case '"':
           let string = "";
@@ -51,6 +51,12 @@ export class Lexer {
           this.advance();
 
           this.addToken(TokenType.STRING, string);
+          break;
+        case "(":
+          this.addToken(TokenType.LEFT_PAREN);
+          break;
+        case ")":
+          this.addToken(TokenType.RIGHT_PAREN);
           break;
         default:
           if (this.isDigit(char)) {
@@ -70,9 +76,17 @@ export class Lexer {
 
             const text = this.source.substring(this.start, this.current);
 
-            const type = text === "let" ? TokenType.LET : TokenType.IDENTIFIER;
-
-            this.addToken(type, text);
+            switch (text) {
+              case "let":
+                this.addToken(TokenType.LET, text);
+                break;
+              case "show":
+                this.addToken(TokenType.SHOW, text);
+                break;
+              default:
+                this.addToken(TokenType.IDENTIFIER, text);
+                break;
+            }
             break;
           } else {
             break;
