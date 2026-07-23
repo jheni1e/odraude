@@ -1,4 +1,4 @@
-enum TokenType {
+export enum TokenType {
     LET,
     IDENTIFIER,
     NUMBER,
