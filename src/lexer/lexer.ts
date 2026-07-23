@@ -38,8 +38,8 @@ export class Lexer {
           this.addToken(TokenType.LESS);
           break;
         case ";":
-            this.addToken(TokenType.SEMICOLON);
-            this.line++;
+          this.addToken(TokenType.SEMICOLON);
+          this.line++;
           break;
         case '"':
           let string = "";
@@ -63,6 +63,17 @@ export class Lexer {
             const number = parseInt(num);
             this.addToken(TokenType.NUMBER, number);
             break;
+          } else if (this.isAlpha(char)) {
+            while (this.isAlphanumeric(this.peek())) {
+              this.advance();
+            }
+
+            const text = this.source.substring(this.start, this.current);
+
+            const type = text === "let" ? TokenType.LET : TokenType.IDENTIFIER;
+
+            this.addToken(type, text);
+            break;
           } else {
             break;
           }
@@ -75,11 +86,19 @@ export class Lexer {
   }
 
   private isDigit(char: string): boolean {
-    return char >= '0' && char <= '9';
+    return char >= "0" && char <= "9";
+  }
+
+  private isAlpha(char: string): boolean {
+    return /^[a-zA-Z]$/.test(char);
+  }
+
+  private isAlphanumeric(char: string): boolean {
+    return /^[a-zA-Z0-9]$/.test(char);
   }
 
   private peek(): string {
-    if (this.current >= this.source.length) return '\0';
+    if (this.current >= this.source.length) return "\0";
     return this.source[this.current];
   }
 
