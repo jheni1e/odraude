@@ -66,6 +66,18 @@ export class Parser {
       return new IdentifierExpr(this.previous());
     }
 
+    if (this.match(TokenType.LEFT_PAREN)) {
+      const expression = this.expression();
+
+      this.consume(TokenType.RIGHT_PAREN, "Expected ')' after expression.");
+
+      return expression;
+    }
+
+    if (this.match(TokenType.RIGHT_PAREN)) {
+      return this.term();
+    }
+
     throw new Error("Expected expression.");
   }
 
