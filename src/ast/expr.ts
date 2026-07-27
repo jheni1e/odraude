@@ -29,3 +29,12 @@ export class BinaryExpr extends Expr {
         super();
     }
 }
+
+export class UnaryExpr extends Expr {
+    constructor(
+        public operator: Token,
+        public right: Expr
+    ) {
+        super();
+    }
+}
