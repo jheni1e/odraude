@@ -80,12 +80,11 @@ export class Parser {
   private term(): Expr {
     let left = this.factor();
 
-    while (this.match(TokenType.PLUS) || this.match(TokenType.MINUS)) {
-      let token = this.previous();
+    while (this.match(TokenType.PLUS, TokenType.MINUS)) {
+      const operator = this.previous();
+      const right = this.factor();
 
-      let right = this.factor();
-
-      left = new BinaryExpr(left, token, right);
+      left = new BinaryExpr(left, operator, right);
     }
 
     return left;
@@ -94,12 +93,11 @@ export class Parser {
   private factor(): Expr {
     let left = this.primary();
 
-    while (this.match(TokenType.STAR) || this.match(TokenType.SLASH)) {
-      let token = this.previous();
+    while (this.match(TokenType.STAR, TokenType.SLASH)) {
+      const operator = this.previous();
+      const right = this.primary();
 
-      let right = this.primary();
-
-      left = new BinaryExpr(left, token, right);
+      left = new BinaryExpr(left, operator, right);
     }
 
     return left;
@@ -121,7 +119,7 @@ export class Parser {
   private comparison(): Expr {
     let left = this.term();
 
-    while (this.match(TokenType.GREATER) || this.match(TokenType.LESS)) {
+    while (this.match(TokenType.GREATER, TokenType.LESS)) {
       const operator = this.previous();
       const right = this.term();
 
