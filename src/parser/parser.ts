@@ -70,9 +70,23 @@ export class Parser {
   }
 
   private term(): Expr {
-    let left = this.primary();
+    let left = this.factor();
 
     while (this.match(TokenType.PLUS) || this.match(TokenType.MINUS)) {
+      let token = this.previous();
+
+      let right = this.factor();
+
+      left = new BinaryExpr(left, token, right);
+    }
+
+    return left;
+  }
+
+  private factor(): Expr {
+    let left = this.primary();
+
+    while (this.match(TokenType.STAR) || this.match(TokenType.SLASH)) {
       let token = this.previous();
 
       let right = this.primary();
