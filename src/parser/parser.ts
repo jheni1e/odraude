@@ -53,7 +53,7 @@ export class Parser {
     throw new Error(message);
   }
 
-  private expression(): Expr {
+  private primary(): Expr {
     if (this.match(TokenType.NUMBER)) {
       return new NumberExpr(this.previous().literal as number);
     }
@@ -67,6 +67,24 @@ export class Parser {
     }
 
     throw new Error("Expected expression.");
+  }
+
+  private term(): Expr {
+    let left = this.primary();
+
+    while (this.match(TokenType.PLUS) || this.match(TokenType.MINUS)) {
+      let token = this.previous();
+
+      let right = this.primary();
+
+      left = new BinaryExpr(left, token, right);
+    }
+
+    return left;
+  }
+
+  private expression(): Expr {
+    return this.term();
   }
 
   private showStatement(): ShowStmt {
