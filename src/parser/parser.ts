@@ -74,10 +74,6 @@ export class Parser {
       return expression;
     }
 
-    if (this.match(TokenType.RIGHT_PAREN)) {
-      return this.term();
-    }
-
     throw new Error("Expected expression.");
   }
 
@@ -109,8 +105,34 @@ export class Parser {
     return left;
   }
 
+  private equality(): Expr {
+    let left = this.comparison();
+
+    while (this.match(TokenType.EQUAL_EQUAL)) {
+      const operator = this.previous();
+      const right = this.comparison();
+
+      left = new BinaryExpr(left, operator, right);
+    }
+
+    return left;
+  }
+
+  private comparison(): Expr {
+    let left = this.term();
+
+    while (this.match(TokenType.GREATER) || this.match(TokenType.LESS)) {
+      const operator = this.previous();
+      const right = this.term();
+
+      left = new BinaryExpr(left, operator, right);
+    }
+
+    return left;
+  }
+
   private expression(): Expr {
-    return this.term();
+    return this.equality();
   }
 
   private showStatement(): ShowStmt {
