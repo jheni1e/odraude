@@ -10,7 +10,7 @@ export class Lexer {
   private tokens: Token[] = [];
 
   private advance(): string {
-    return this.source[this.current++];
+    return this.source[this.current++]!;
   }
 
   scanTokens() {
@@ -43,13 +43,34 @@ export class Lexer {
           }
           break;
         case ">":
-          this.addToken(TokenType.GREATER);
+          if (this.match("=")) {
+            this.addToken(TokenType.GREATER_EQUAL);
+          } else {
+            this.addToken(TokenType.GREATER);
+          }
           break;
         case "<":
-          this.addToken(TokenType.LESS);
+          if (this.match("=")) {
+            this.addToken(TokenType.LESS_EQUAL);
+          } else {
+            this.addToken(TokenType.LESS);
+          }
           break;
         case ";":
           this.addToken(TokenType.SEMICOLON);
+          break;
+        case "*":
+          this.addToken(TokenType.STAR);
+          break;
+        case "/":
+          this.addToken(TokenType.SLASH);
+          break;
+        case "!":
+          if (this.match("=")) {
+            this.addToken(TokenType.BANG_EQUAL);
+          } else {
+            this.addToken(TokenType.BANG);
+          }
           break;
         case " ":
         case "\r":

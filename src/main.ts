@@ -1,4 +1,5 @@
 import { Lexer } from "../src/lexer/lexer";
+import { TokenType } from "./lexer/token-type";
 import { Parser } from "./parser/parser";
 
 const code = `
@@ -7,6 +8,8 @@ let idade = 19;
 show name;
 show idade;
 -- oiiiii
+let x = 10 + 20 * 5;
+show x;
 `;
 
 const lexer = new Lexer(code);
