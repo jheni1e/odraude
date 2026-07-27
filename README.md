@@ -5,7 +5,7 @@ Odraude is an experimental programming language built from scratch to learn how 
 ## Roadmap
 
 - [x] Lexer
-- [ ] Parser
+- [x] Parser
 - [ ] Abstract Syntax Tree (AST)
 - [ ] Semantic Analysis
 - [ ] JavaScript Generation

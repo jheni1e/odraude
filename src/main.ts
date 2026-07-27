@@ -17,4 +17,4 @@ console.log(tokens);
 const parser = new Parser(tokens);
 const ast = parser.parse();
 
-console.log(ast);
+console.dir(ast, { depth: null });
