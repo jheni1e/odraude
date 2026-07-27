@@ -1,5 +1,5 @@
 import { LetStmt, ShowStmt, Stmt } from "../ast/stmt";
-import { Expr, NumberExpr, StringExpr, IdentifierExpr, BinaryExpr } from "../ast/expr";
+import { Expr, NumberExpr, StringExpr, IdentifierExpr, BinaryExpr, UnaryExpr } from "../ast/expr";
 import { Token } from "../lexer/token";
 import { TokenType } from "../lexer/token-type";
 
@@ -91,16 +91,27 @@ export class Parser {
   }
 
   private factor(): Expr {
-    let left = this.primary();
+    let left = this.unary();
 
     while (this.match(TokenType.STAR, TokenType.SLASH)) {
       const operator = this.previous();
-      const right = this.primary();
+      const right = this.unary();
 
       left = new BinaryExpr(left, operator, right);
     }
 
     return left;
+  }
+  
+  private unary(): Expr {
+    if (this.match(TokenType.MINUS, TokenType.BANG)) {
+      const operator = this.previous();
+      const right = this.unary();
+
+      return new UnaryExpr(operator, right);
+    } else {
+        return this.primary();
+    }
   }
 
   private equality(): Expr {
