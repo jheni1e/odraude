@@ -1,7 +1,7 @@
 import { Lexer } from "../src/lexer/lexer";
-import { TokenType } from "./lexer/token-type";
 import { Parser } from "./parser/parser";
 import { SemanticAnalyzer } from "./semantic/semantic-analyzer";
+import { SemanticError } from "./shared/errors/semantic-error";
 
 const code = `
 let name = "Jhenie";
@@ -15,13 +15,17 @@ show x;
 
 const lexer = new Lexer(code);
 const tokens = lexer.scanTokens();
-
-// console.log(tokens);
-
 const parser = new Parser(tokens);
 const ast = parser.parse();
-
-// console.dir(ast, { depth: null });
-
 const analyzer = new SemanticAnalyzer();
-analyzer.analyze(ast);
+
+try {
+    lexer.scanTokens();
+    parser.parse();
+    analyzer.analyze(ast);
+}
+catch (error) {
+    if (error instanceof SemanticError) {
+        console.error(error.message);
+    }
+}
