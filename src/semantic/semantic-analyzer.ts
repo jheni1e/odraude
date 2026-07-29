@@ -1,7 +1,13 @@
-import { Expr } from "../ast/expr";
+import { BinaryExpr, Expr, IdentifierExpr, NumberExpr, StringExpr, UnaryExpr } from "../ast/expr";
 import { LetStmt, ShowStmt, type Stmt } from "../ast/stmt";
+import { TokenType } from "../lexer/token-type";
+import { SemanticError } from "../shared/errors/semantic-error";
+import { ValueType } from "../shared/types/value-type";
+import { SymbolTable } from "./symbol-table";
 
 export class SemanticAnalyzer {
+  private symbols = new SymbolTable();
+
   analyze(statements: Stmt[]): void {
     for (const statement of statements) {
       this.visitStatement(statement);
@@ -16,15 +22,114 @@ export class SemanticAnalyzer {
     }
   }
 
-  private visitExpression(expression: Expr): void {
-    //...
+  private visitExpression(expression: Expr): ValueType {
+    if (expression instanceof NumberExpr) {
+      return ValueType.NUMBER;
+    }
+
+    if (expression instanceof StringExpr) {
+      return ValueType.STRING;
+    }
+
+    if (expression instanceof IdentifierExpr) {
+      return this.visitIdentifier(expression);
+    }
+
+    if (expression instanceof BinaryExpr) {
+      return this.visitBinary(expression);
+    }
+
+    if (expression instanceof UnaryExpr) {
+      return this.visitUnary(expression);
+    }
+
+    throw new Error("Unknown expression.");
+  }
+
+  private visitIdentifier(expr: IdentifierExpr): ValueType {
+    const symbol = this.symbols.lookup(expr.name.lexeme);
+
+    if (!symbol) {
+      throw new SemanticError(`Variable '${expr.name.lexeme}' does not exist.`);
+    }
+
+    return symbol.type;
+  }
+
+  private visitBinary(expr: BinaryExpr): ValueType {
+    const left = this.visitExpression(expr.left);
+    const right = this.visitExpression(expr.right);
+
+    switch (expr.operator.type) {
+      case TokenType.PLUS:
+        if (left !== right) {
+          throw new Error("Both operands must have the same type.");
+        }
+
+        return left;
+
+      case TokenType.MINUS:
+      case TokenType.STAR:
+      case TokenType.SLASH:
+        if (left !== ValueType.NUMBER || right !== ValueType.NUMBER) {
+          throw new Error("Arithmetic operators require numbers.");
+        }
+
+        return ValueType.NUMBER;
+
+      case TokenType.GREATER:
+      case TokenType.LESS:
+        if (left !== ValueType.NUMBER || right !== ValueType.NUMBER) {
+          throw new Error("Comparison operators require numbers.");
+        }
+
+        return ValueType.BOOLEAN;
+
+      case TokenType.EQUAL_EQUAL:
+        if (left !== right) {
+          throw new Error("Cannot compare different types.");
+        }
+
+        return ValueType.BOOLEAN;
+    }
+
+    throw new Error(`Unknown operator '${expr.operator.lexeme}'.`);
+  }
+
+  private visitUnary(expr: UnaryExpr): ValueType {
+    const right = this.visitExpression(expr.right);
+
+    switch (expr.operator.type) {
+      case TokenType.MINUS:
+        if (right !== ValueType.NUMBER) {
+          throw new Error("Unary '-' can only be applied to numbers.");
+        }
+
+        return ValueType.NUMBER;
+      case TokenType.BANG:
+        if (right !== ValueType.BOOLEAN) {
+          throw new Error("Unary '!' can only be applied to booleans.");
+        }
+
+        return ValueType.BOOLEAN;
+      default:
+        throw new Error(`Unknown unary operator '${expr.operator.lexeme}'.`);
+    }
   }
 
   private visitLetStatement(statement: LetStmt) {
-    console.log(statement);
+    const name = statement.name.lexeme;
+
+    const type = this.visitExpression(statement.initializer);
+
+    this.symbols.define(name, {
+      type,
+      mutable: true,
+      initialized: true,
+    });
   }
 
   private visitShowStatement(statement: ShowStmt) {
-    console.log(statement);
+    this.visitExpression(statement.expression);
   }
 }
