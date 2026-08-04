@@ -1,4 +1,5 @@
 import { Lexer } from "../src/lexer/lexer";
+import { JSGenerator } from "./generator/js-generator";
 import { Parser } from "./parser/parser";
 import { SemanticAnalyzer } from "./semantic/semantic-analyzer";
 import { SemanticError } from "./shared/errors/semantic-error";
@@ -13,19 +14,24 @@ let x = 10 + 20 * 5;
 show x;
 `;
 
-const lexer = new Lexer(code);
-const tokens = lexer.scanTokens();
-const parser = new Parser(tokens);
-const ast = parser.parse();
-const analyzer = new SemanticAnalyzer();
-
 try {
-    lexer.scanTokens();
-    parser.parse();
+    const lexer = new Lexer(code);
+    const tokens = lexer.scanTokens();
+
+    const parser = new Parser(tokens);
+    const ast = parser.parse();
+
+    const analyzer = new SemanticAnalyzer();
     analyzer.analyze(ast);
+
+    const generator = new JSGenerator();
+    const js = generator.generate(ast);
+    console.log(js);
 }
 catch (error) {
     if (error instanceof SemanticError) {
         console.error(error.message);
+    } else {
+        console.error(error);
     }
 }
