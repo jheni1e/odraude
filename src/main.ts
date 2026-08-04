@@ -1,3 +1,5 @@
+import * as fs from "node:fs";
+
 import { Lexer } from "../src/lexer/lexer";
 import { JSGenerator } from "./generator/js-generator";
 import { Parser } from "./parser/parser";
@@ -26,7 +28,10 @@ try {
 
     const generator = new JSGenerator();
     const js = generator.generate(ast);
-    console.log(js);
+
+    fs.mkdirSync("src/build", { recursive: true });
+
+    fs.writeFileSync("src/build/output.js", js);
 }
 catch (error) {
     if (error instanceof SemanticError) {
