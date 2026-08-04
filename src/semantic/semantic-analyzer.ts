@@ -62,17 +62,22 @@ export class SemanticAnalyzer {
 
     switch (expr.operator.type) {
       case TokenType.PLUS:
-        if (left !== right) {
-          throw new SemanticError("Both operands must have the same type.");
+        if (left === ValueType.NUMBER && right === ValueType.NUMBER) {
+          return ValueType.NUMBER;
         }
 
-        return left;
+        if (left === ValueType.STRING && right === ValueType.STRING) {
+          return ValueType.STRING;
+        }
 
+        throw new SemanticError(
+          `Operator '+' cannot be applied to ${left} and ${right}.`
+        );
       case TokenType.MINUS:
       case TokenType.STAR:
       case TokenType.SLASH:
         if (left !== ValueType.NUMBER || right !== ValueType.NUMBER) {
-          throw new SemanticError("Arithmetic operators require numbers.");
+          throw new SemanticError(`Operator '${expr.operator.lexeme}' cannot be applied to ${left} and ${right}.`);
         }
 
         return ValueType.NUMBER;
@@ -121,6 +126,10 @@ export class SemanticAnalyzer {
     const name = statement.name.lexeme;
 
     const type = this.visitExpression(statement.initializer);
+
+    if (this.symbols.lookup(name)) {
+      throw new SemanticError(`Variable '${name}' is already declared.`);
+    }
 
     this.symbols.define(name, {
       type,
