@@ -43,7 +43,7 @@ export class SemanticAnalyzer {
       return this.visitUnary(expression);
     }
 
-    throw new Error("Unknown expression.");
+    throw new SemanticError("Unknown expression.");
   }
 
   private visitIdentifier(expr: IdentifierExpr): ValueType {
@@ -63,7 +63,7 @@ export class SemanticAnalyzer {
     switch (expr.operator.type) {
       case TokenType.PLUS:
         if (left !== right) {
-          throw new Error("Both operands must have the same type.");
+          throw new SemanticError("Both operands must have the same type.");
         }
 
         return left;
@@ -72,7 +72,7 @@ export class SemanticAnalyzer {
       case TokenType.STAR:
       case TokenType.SLASH:
         if (left !== ValueType.NUMBER || right !== ValueType.NUMBER) {
-          throw new Error("Arithmetic operators require numbers.");
+          throw new SemanticError("Arithmetic operators require numbers.");
         }
 
         return ValueType.NUMBER;
@@ -80,20 +80,20 @@ export class SemanticAnalyzer {
       case TokenType.GREATER:
       case TokenType.LESS:
         if (left !== ValueType.NUMBER || right !== ValueType.NUMBER) {
-          throw new Error("Comparison operators require numbers.");
+          throw new SemanticError("Comparison operators require numbers.");
         }
 
         return ValueType.BOOLEAN;
 
       case TokenType.EQUAL_EQUAL:
         if (left !== right) {
-          throw new Error("Cannot compare different types.");
+          throw new SemanticError("Cannot compare different types.");
         }
 
         return ValueType.BOOLEAN;
     }
 
-    throw new Error(`Unknown operator '${expr.operator.lexeme}'.`);
+    throw new SemanticError(`Unknown operator '${expr.operator.lexeme}'.`);
   }
 
   private visitUnary(expr: UnaryExpr): ValueType {
@@ -102,18 +102,18 @@ export class SemanticAnalyzer {
     switch (expr.operator.type) {
       case TokenType.MINUS:
         if (right !== ValueType.NUMBER) {
-          throw new Error("Unary '-' can only be applied to numbers.");
+          throw new SemanticError("Unary '-' can only be applied to numbers.");
         }
 
         return ValueType.NUMBER;
       case TokenType.BANG:
         if (right !== ValueType.BOOLEAN) {
-          throw new Error("Unary '!' can only be applied to booleans.");
+          throw new SemanticError("Unary '!' can only be applied to booleans.");
         }
 
         return ValueType.BOOLEAN;
       default:
-        throw new Error(`Unknown unary operator '${expr.operator.lexeme}'.`);
+        throw new SemanticError(`Unknown unary operator '${expr.operator.lexeme}'.`);
     }
   }
 
